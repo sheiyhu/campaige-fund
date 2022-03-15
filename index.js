@@ -14,6 +14,13 @@ app.get("/", (req, res, next) => {
   });
 });
 
+app.get('/candidate/', (req, res, next) => {
+  res.status(404).json({
+    status: 'Error',
+    message: 'Invalid request, No candidate name was provided'
+  })
+})
+
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
   console.log(`App running on port ${port}`);

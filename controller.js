@@ -60,7 +60,7 @@ exports.calculateAggregation = async (req, res, next) => {
     };
 
     res.status(200).json({
-      status: 200,
+      status: 'Success',
       search_term: {
         candidate_name: candidateName,
         election_cycle: election_year,

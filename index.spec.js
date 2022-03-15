@@ -120,7 +120,6 @@ describe("candidate", () => {
         expect(res.body.aggregated_data).to.have.property("contributions", 1);
         done();
       });
-    
   });
 
   it("empty contributions data", (done) => {
@@ -133,6 +132,21 @@ describe("candidate", () => {
       .end((err, res) => {
         console.log(res);
         expect(res).to.have.status(204);
+        done();
+      });
+  });
+
+  it("No candidate Name is provided", (done) => {
+    Name = "";
+    election_year = 2020;
+
+    chai
+      .request(app)
+      .get(`/candidate/${Name}`)
+      .end((err, res) => {
+        console.log(res);
+        expect(res).to.have.status(404);
+        expect(res.body).to.have.property('message', 'Invalid request, No candidate name was provided');
         done();
       });
   });
