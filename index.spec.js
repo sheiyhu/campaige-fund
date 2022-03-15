@@ -7,9 +7,10 @@ const app = require("./index");
 chai.use(chaiHttp);
 
 describe("candidate", () => {
-  const candidateName = "Hillary Clinton";
-  const election_year = 2020;
-  const candidateNameVerification = {
+  let candidateName = "Hillary";
+  let election_year = 2020;
+
+  const candidateNameVerificationOne = {
     data: {
       candidate_names: [
         {
@@ -22,21 +23,28 @@ describe("candidate", () => {
           CandidateMaplightID: 48184,
           CandidateLabel: "Hillary Scholten (D)",
         },
+      ],
+    },
+  };
+
+  const candidateNameVerificationTwo = {
+    data: {
+      candidate_names: [
         {
-          CandidateName: "Robert Clinton Smith",
-          CandidateMaplightID: 12450,
-          CandidateLabel: "Robert Clinton Smith (R, NH)",
+          CandidateName: "Joseph Biden",
+          CandidateMaplightID: 4533,
+          CandidateLabel: "Joseph Biden (D, President)",
         },
         {
-          CandidateName: "Hillary O'connor Mueri",
-          CandidateMaplightID: 48948,
-          CandidateLabel: "Hillary O'connor Mueri (D)",
+          CandidateName: "Patrick Joseph Toomey",
+          CandidateMaplightID: 7544,
+          CandidateLabel: "Patrick Joseph Toomey (R, PA)",
         },
       ],
     },
   };
 
-  const contributions = {
+  const contributionsOne = {
     data: {
       aggregate_totals: [
         {
@@ -59,13 +67,33 @@ describe("candidate", () => {
     },
   };
 
-  nock("https://api.maplight.org/maplight-api/fec")
-    .get(`/candidate_names/${candidateName}`)
-    .reply(200, candidateNameVerification)
-    .get(
-      `/contributions?candidate_name=${candidateName}&election_cycle=${election_year}`
-    )
-    .reply(200, contributions);
+  const contributionsTwo = {
+    data: {
+      aggregate_totals: [
+        {
+          total_amount: 0,
+          contributions: 0,
+        },
+      ],
+      rows: [],
+    },
+  };
+
+  const mock = nock("https://api.maplight.org/maplight-api/fec")
+    .persist()
+    .get("/candidate_names/Hillary")
+    .thrice()
+    .reply(200, candidateNameVerificationOne)
+    .get("/contributions?candidate_name=Hillary Clinton&election_cycle=2020")
+    .thrice()
+    .reply(200, contributionsOne)
+    .persist()
+    .get(`/candidate_names/Biden`)
+    .thrice()
+    .reply(200, candidateNameVerificationTwo)
+    .get(`/contributions?candidate_name=Joseph Biden&election_cycle=2020`)
+    .thrice()
+    .reply(200, contributionsTwo);
 
   var expect = chai.expect;
 
@@ -74,12 +102,37 @@ describe("candidate", () => {
       .request(app)
       .get(`/candidate/${candidateName}`)
       .end((err, res) => {
-        console.log(res)
+        console.log(res);
         expect(res).to.have.status(200);
-        expect(res.body).to.have.property("min");
-        expect(res.body).to.have.property("max");
-        expect(res.body).to.have.property("average");
-        expect(res.body).to.have.property("total");
+        expect(res.body.maplight_aggregation).to.have.property("average", 1000);
+        expect(res.body.maplight_aggregation).to.have.property(
+          "total_amount",
+          1000
+        );
+        expect(res.body.maplight_aggregation).to.have.property(
+          "contributions",
+          1
+        );
+        expect(res.body.aggregated_data).to.have.property("min", 1000);
+        expect(res.body.aggregated_data).to.have.property("max", 1000);
+        expect(res.body.aggregated_data).to.have.property("total", 1000);
+        expect(res.body.aggregated_data).to.have.property("average", 1000);
+        expect(res.body.aggregated_data).to.have.property("contributions", 1);
+        done();
+      });
+    
+  });
+
+  it("empty contributions data", (done) => {
+    Name = "Biden";
+    election_year = 2018;
+
+    chai
+      .request(app)
+      .get(`/candidate/${Name}`)
+      .end((err, res) => {
+        console.log(res);
+        expect(res).to.have.status(204);
         done();
       });
   });

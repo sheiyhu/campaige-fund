@@ -56,6 +56,7 @@ exports.calculateAggregation = async (req, res, next) => {
       max,
       average,
       total,
+      contributions: apiResponse.data.data.rows.length
     };
 
     res.status(200).json({
