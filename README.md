@@ -37,10 +37,10 @@ $ npm test
 To use the api, first install the dependencies, then run `npm run dev` .
 The app will be serve on localhost with port 3000.
 
-# Gettting Data aggregration of A Candidate
+### Gettting Data Aggregration of A Candidate
 
 Use http://localhost:3000/candidate/candidateName ---- It will return the data aggregation for the candidate using 2020 election year.
 
-# Gettting Data aggregration of A Candidate For A Particular Election Year
+### Gettting Data Aggregration of A Candidate For A Particular Election Year
 
 Use http://localhost:3000/candidate/candidateName?election_year=[year] ---- It will return the data aggregation for the candidate for that election year. The year available is between 2008 and 2020 inclusive.
