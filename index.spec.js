@@ -102,7 +102,6 @@ describe("candidate", () => {
       .request(app)
       .get(`/candidate/${candidateName}`)
       .end((err, res) => {
-        console.log(res);
         expect(res).to.have.status(200);
         expect(res.body.maplight_aggregation).to.have.property("average", 1000);
         expect(res.body.maplight_aggregation).to.have.property(
@@ -130,7 +129,6 @@ describe("candidate", () => {
       .request(app)
       .get(`/candidate/${Name}`)
       .end((err, res) => {
-        console.log(res);
         expect(res).to.have.status(204);
         done();
       });
@@ -144,7 +142,6 @@ describe("candidate", () => {
       .request(app)
       .get(`/candidate/${Name}`)
       .end((err, res) => {
-        console.log(res);
         expect(res).to.have.status(404);
         expect(res.body).to.have.property('message', 'Invalid request, No candidate name was provided');
         done();
