@@ -14,8 +14,6 @@ exports.calculateAggregation = async (req, res, next) => {
       `/candidate_names/${candidateName}`
     );
 
-    console.log(candidateNameVerification);
-
     if (candidateNameVerification.data.data.candidate_names.length == 0) {
       throw new Error("No candidate with such name");
     }
