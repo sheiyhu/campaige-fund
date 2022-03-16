@@ -14,6 +14,8 @@ exports.calculateAggregation = async (req, res, next) => {
       `/candidate_names/${candidateName}`
     );
 
+    console.log(candidateNameVerification);
+
     if (candidateNameVerification.data.data.candidate_names.length == 0) {
       throw new Error("No candidate with such name");
     }
@@ -33,17 +35,27 @@ exports.calculateAggregation = async (req, res, next) => {
     }
 
     const maplightData = apiResponse.data.data.aggregate_totals[0];
+
+    maplightData.total_amount =
+      maplightData.total_amount < 0
+        ? maplightData.total_amount * -1
+        : maplightData.total_amount;
     maplightData.average = Number(
-      ((maplightData.total_amount * -1) / maplightData.contributions).toFixed(2)
+      (maplightData.total_amount / maplightData.contributions).toFixed(2)
     );
-    maplightData.total_amount = maplightData.total_amount * -1;
 
     let total, min, max, average;
     total = max = 0;
-    min = apiResponse.data.data.rows[0].TransactionAmount * -1;
+    min =
+      apiResponse.data.data.rows[0].TransactionAmount < 0
+        ? apiResponse.data.data.rows[0].TransactionAmount * -1
+        : apiResponse.data.data.rows[0].TransactionAmount;
 
     for (elem of apiResponse.data.data.rows) {
-      let amount = elem.TransactionAmount * -1;
+      let amount =
+        elem.TransactionAmount < 0
+          ? elem.TransactionAmount * -1
+          : elem.TransactionAmount;
       total += amount;
       min = min < amount ? min : amount;
       max = max > amount ? max : amount;
@@ -56,11 +68,11 @@ exports.calculateAggregation = async (req, res, next) => {
       max,
       average,
       total,
-      contributions: apiResponse.data.data.rows.length
+      contributions: apiResponse.data.data.rows.length,
     };
 
     res.status(200).json({
-      status: 'Success',
+      status: "Success",
       search_term: {
         candidate_name: candidateName,
         election_cycle: election_year,
